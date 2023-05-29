@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Genshin Impact resin timer to help you keep track of your resin refills.">
+  <meta property="og:title" content="Genshin Impact Resin Timer">
+  <meta property="og:description" content="A helpful tool to keep track of your resin refills in Genshin Impact.">
+  <title>Genshin Impact Resin Timer</title>
+  <link rel="icon" href="cute.png" type="image/gif">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.7/tailwind.min.css">
+  <style>
+    body {
+      background-color: #1F2937;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mx-auto my-10 p-5 rounded-md shadow-lg h-center">
+    <h1 class="flex justify-center text-3xl mb-5 font-bold">Genshin Impact Resin Timer</h1>
+
+    <div class="flex justify-center text-2xl font-bold mb-5" id="resin-count">0/160</div>
+    <div class="flex justify-center text-2xl font-bold mb-5" id="timer">00:00:00 </div>
+
+    <div class="flex justify-center mb-5 mx-auto">
+        <input class="w-auto rounded-md p-2 text-gray-600 text-center" type="number" id="resin-input" min="0" max="160" required>
+        <button id="update-resin" class="ml-3 px-4 py-2 rounded-md bg-green-500 text-white">Update</button>
+      </div>
+  </div>
+
+
+<script>
+
+const expirationDate = new Date();
+expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+  
+function getCookie(name) {
+  const cookies = document.cookie.split(';');
+  for(let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if(cookie.startsWith(name + '=')) {
+      return cookie.substring(name.length + 1, cookie.length);
+    }
+  }
+  return null;
+}
+
+const currentTime = Date.now();
+const previousResin = parseFloat(getCookie('resin')) || 0;
+const currentTimestamp = parseFloat(getCookie('timestamp'));
+
+if (currentTimestamp && previousResin) {
+  const currentTime = Date.now();
+  const timeDiff = currentTime - currentTimestamp;
+  const resinToAdd = timeDiff / (8 * 60 * 1000); // 8 minutes for 1 resin
+  //console.log(resinToAdd)
+  const currentResin = Math.min(previousResin + resinToAdd, 160);
+  document.cookie = `resin=${currentResin.toFixed(1)};expires=${expirationDate.toUTCString()}`;
+  //console.log(currentResin.toFixed(1));
+} else {
+  const currentResin = parseFloat(getCookie('resin'));
+  document.cookie = `resinTimestamp=${Date.now()};expires=${expirationDate.toUTCString()}`;
+}
+
+//console.log(document.cookie)
+// Get the current resin count from the cookie
+const resinCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('resin='));
+let resinCount = resinCookie ? parseFloat(resinCookie.split('=')[1]) : 0;
+
+// Set the resin count on the page
+const resinCountElement = document.getElementById('resin-count');
+resinCountElement.textContent = `${resinCount.toFixed(1)}/160`;
+
+// Calculate the remaining time
+let remainingTime = (160 - resinCount) * 8 * 60 * 1000;
+//console.log(document.cookie)
+
+// Update the timer element with the remaining time
+const timerElement = document.getElementById('timer');
+const countdown = setInterval(() => {
+  const updatedRemainingTime = remainingTime - 1000;
+  if (updatedRemainingTime <= 0) {
+    // If the countdown reaches 0, update the resin count and reset the timer
+    resinCount = 160;
+    resinCountElement.textContent = '160/160';
+    document.cookie = `resin=160.0`;
+  } else {
+    //console.log(document.cookie)
+    remainingTime = updatedRemainingTime;
+    remainingResin = remainingTime / (8 * 60 * 1000);
+    resinCount = 160 - remainingResin;
+    document.cookie = `resin=${resinCount.toFixed(1)};expires=${expirationDate.toUTCString()}`;
+    const currentTimestamp = Date.now();
+    document.cookie = `timestamp=${currentTimestamp};expires=${expirationDate.toUTCString()}`;
+    resinCountElement.textContent = `${resinCount.toFixed(1)}/160`;
+  }
+  const time = new Date(remainingTime);
+  timerElement.textContent = time.getUTCHours().toString().padStart(2, '0') + ':' + time.getUTCMinutes().toString().padStart(2, '0') + ':' + time.getUTCSeconds().toString().padStart(2, '0');
+}, 1000);
+  
+ // Update the resin count when the Update button is clicked
+document.getElementById('update-resin').addEventListener('click', () => {
+  const newResin = parseFloat(document.getElementById('resin-input').value);
+  if (newResin >= 0 && newResin <= 160) {
+    resinCount = newResin;
+    resinCountElement.textContent = `${resinCount.toFixed(1)}/160`;
+    document.cookie = `resin=${resinCount}`;
+    remainingTime = (160 - resinCount) * 8 * 60 * 1000;
+  }
+});
+
+</script>
+
+</body>
+</html>

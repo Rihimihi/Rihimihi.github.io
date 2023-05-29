@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Color Picker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css">
+    <link rel="icon" href="cute.png" type="image/gif">
+    <style>
+      html, body {
+        height: 100%;
+      }
+      .select-all {
+        user-select: all;
+      }
+    </style>
+</head>
+<body class="flex items-center justify-center h-full bg-gray-900">
+    <div class="container mx-auto p-32 rounded-md bg-gray-800">
+        <h1 class="text-2xl font-bold text-white mb-4 text-center">Pick a Color</h1>
+        <input type="color" id="color-picker", value="#ED78DE" class="h-40 w-40 mx-auto rounded-sm mb-4 flex items-center justify-center" value="#000000">
+        <p id="color-code" class="text-white text-2xl cursor-pointer select-all text-center">Click to copy color code</p>
+    </div>
+    <script>
+      const colorPicker = document.getElementById('color-picker');
+      const colorCode = document.getElementById('color-code');
+
+      // Set the initial color code
+      colorCode.innerText = colorPicker.value.toUpperCase();
+
+      colorPicker.addEventListener('input', () => {
+        const hexColor = colorPicker.value;
+        const rgbColor = hexToRgb(hexColor);
+        colorCode.innerText = hexColor.toUpperCase();
+        colorPicker.setAttribute('title', `RGB: ${rgbColor}`);
+      });
+
+      colorCode.addEventListener('click', () => {
+        const range = document.createRange();
+        range.selectNode(colorCode);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+        colorCode.innerText = 'Color code copied!';
+      });
+
+      // Helper function to convert hex color to RGB
+      function hexToRgb(hexColor) {
+        const hex = hexColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+    </script>
+</body>
+</html>
