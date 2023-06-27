@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Responsive Webpage</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      font-size: 24px;
+      background-color: #000;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>
+    // Function to get the URL parameter value
+    function getUrlParameter(name) {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(window.location.href);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Get the 'data' parameter from the URL
+    var data = getUrlParameter('data');
+
+    // Display the data in the center of the page
+    var contentElement = document.createElement('div');
+    if (data) {
+      contentElement.innerText = data;
+    } else {
+      contentElement.innerText = 'No Data To Display';
+    }
+    document.body.appendChild(contentElement);
+  </script>
+</body>
+</html>
