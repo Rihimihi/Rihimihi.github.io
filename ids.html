@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract IDs</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <div class="max-w-3xl mx-auto p-8 mt-10 bg-gray-800 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-6 text-center">Extract IDs from Text</h1>
+        <textarea id="inputText" class="w-full h-48 p-4 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" placeholder="Paste your text here..."></textarea>
+        <input type="file" id="fileInput" class="w-full mt-4 p-2 bg-gray-700 text-white rounded-lg border border-gray-600 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" accept=".txt">
+        <button class="mt-6 w-full px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50" onclick="processText()">Extract IDs</button>
+        <div id="output" class="mt-6 p-4 bg-gray-700 text-white rounded-lg border border-gray-600 hidden">
+            <div class="text-lg font-semibold mb-2"></div>
+            <div id="outputText"></div>
+            <button class="mt-4 w-full px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-opacity-50" onclick="copyToClipboard()">Copy All IDs</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('inputText').value = e.target.result;
+            };
+            reader.readAsText(file);
+        });
+
+        function processText() {
+            const text = document.getElementById('inputText').value;
+            const lines = text.split('\n');
+            const ids = new Set();
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                if (trimmedLine.startsWith('[') || (!trimmedLine.startsWith('[') && lines.some(l => l.startsWith('[')))) {
+                    const id = trimmedLine.match(/^\[?(\d+)/);
+                    if (id) {
+                        ids.add(id[1]);
+                    }
+                }
+            });
+            const output = document.getElementById('output');
+            const outputText = document.getElementById('outputText');
+            outputText.innerText = [...ids].join(' ');
+            output.classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText').innerText;
+            navigator.clipboard.writeText(outputText).then(() => {
+                alert('IDs copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
